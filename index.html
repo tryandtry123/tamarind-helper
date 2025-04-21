@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>酸角汁和酸角糕助手</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f5f2;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #d94e4e;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #d94e4e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #c73e3e;
+        }
+        .results {
+            margin-top: 30px;
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+        .error {
+            color: red;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .result-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .result-box {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            width: 48%;
+        }
+        .instruction {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f9eadc;
+            border-radius: 5px;
+            border-left: 4px solid #d94e4e;
+        }
+        @media (max-width: 768px) {
+            .result-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>酸角汁和酸角糕制作助手</h1>
+        
+        <div class="form-group">
+            <label for="bottles">您想制作多少瓶酸角汁？</label>
+            <input type="number" id="bottles" name="bottles" value="1" min="1" required>
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <button id="calculate">计算配料</button>
+        
+        <div class="results" id="results">
+            <h2>计算结果</h2>
+            
+            <div class="result-container">
+                <div class="result-box">
+                    <h3>酸角汁配料 (<span id="bottleCount">1</span>瓶)</h3>
+                    <ul>
+                        <li>酸角: <span id="tamarind">16</span>克</li>
+                        <li>红糖: <span id="brownSugar">20</span>克</li>
+                        <li>冰糖: <span id="rockSugar">10</span>克</li>
+                        <li>纯净水: <span id="water">300</span>毫升</li>
+                    </ul>
+                    <p>总计可制作约 <strong><span id="totalJuice">300</span></strong> 毫升酸角汁</p>
+                </div>
+                
+                <div class="result-box">
+                    <h3>酸角糕计算</h3>
+                    <p>使用全部酸角汁可制作约 <strong><span id="cakeAmount">2.31</span></strong> 份酸角糕</p>
+                    <p>需要的木薯淀粉: <strong><span id="starchNeeded">23.08</span></strong> 克</p>
+                </div>
+            </div>
+            
+            <div class="instruction">
+                <h3>制作说明</h3>
+                <h4>酸角汁制作步骤:</h4>
+                <ol>
+                    <li>将酸角放入容器中，加入纯净水浸泡约1小时</li>
+                    <li>用手揉搓酸角，使其充分溶解在水中</li>
+                    <li>过滤去除酸角籽和果肉残渣</li>
+                    <li>加入红糖和冰糖，搅拌至完全溶解</li>
+                    <li>倒入瓶中密封保存，冷藏后口感更佳</li>
+                </ol>
+                
+                <h4>酸角糕制作步骤:</h4>
+                <ol>
+                    <li>取适量酸角汁倒入锅中，小火加热</li>
+                    <li>将木薯淀粉与少量冷水调匀</li>
+                    <li>酸角汁微沸后，慢慢倒入淀粉水，不断搅拌</li>
+                    <li>当酸角汁变得浓稠呈胶状，倒入模具中</li>
+                    <li>冷却至室温后放入冰箱冷藏2小时以上即可食用</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 酸角汁配比 (每瓶)
+        const TAMARIND_RATIO = {
+            '酸角': 16,  // 克
+            '红糖': 20,  // 克
+            '冰糖': 10,  // 克
+            '纯净水': 300  // 毫升
+        };
+
+        // 酸角糕配比
+        const TAMARIND_CAKE_RATIO = {
+            '酸角汁': 130,  // 毫升
+            '木薯淀粉': 10  // 克
+        };
+
+        document.getElementById('calculate').addEventListener('click', function() {
+            const bottlesInput = document.getElementById('bottles');
+            const bottles = parseInt(bottlesInput.value);
+            
+            if (isNaN(bottles) || bottles <= 0) {
+                document.getElementById('error').textContent = '请输入大于0的瓶数';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('results').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('error').style.display = 'none';
+            
+            // 计算酸角汁配料
+            const tamarind = TAMARIND_RATIO['酸角'] * bottles;
+            const brownSugar = TAMARIND_RATIO['红糖'] * bottles;
+            const rockSugar = TAMARIND_RATIO['冰糖'] * bottles;
+            const water = TAMARIND_RATIO['纯净水'] * bottles;
+            
+            // 计算酸角汁总量（毫升）
+            const totalJuice = water;
+            
+            // 计算可制作的酸角糕数量
+            const cakeAmount = totalJuice / TAMARIND_CAKE_RATIO['酸角汁'];
+            
+            // 计算酸角糕所需木薯淀粉
+            const starchNeeded = cakeAmount * TAMARIND_CAKE_RATIO['木薯淀粉'];
+            
+            // 更新页面显示
+            document.getElementById('bottleCount').textContent = bottles;
+            document.getElementById('tamarind').textContent = tamarind;
+            document.getElementById('brownSugar').textContent = brownSugar;
+            document.getElementById('rockSugar').textContent = rockSugar;
+            document.getElementById('water').textContent = water;
+            document.getElementById('totalJuice').textContent = totalJuice;
+            document.getElementById('cakeAmount').textContent = cakeAmount.toFixed(2);
+            document.getElementById('starchNeeded').textContent = starchNeeded.toFixed(2);
+            
+            document.getElementById('results').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
